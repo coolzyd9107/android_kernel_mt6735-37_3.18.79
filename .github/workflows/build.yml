@@ -1,0 +1,59 @@
+name: Build PA03 Kernel
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_jobs:
+        description: Parallel build jobs
+        type: choice
+        options:
+          - "1"
+          - "2"
+          - "3"
+          - "4"
+        default: "4"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      BUILD_JOBS: ${{ inputs.build_jobs }}
+
+    steps:
+      - name: Check out source and BakaSU
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Install kernel build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            bc \
+            bison \
+            build-essential \
+            flex \
+            git \
+            libelf-dev \
+            libncurses-dev \
+            libssl-dev \
+            perl \
+            python3 \
+            zip
+
+      - name: Build kernel and AnyKernel3 package
+        run: bash build.sh
+
+      - name: Upload flashable package without wrapping it in another archive
+        uses: actions/upload-artifact@v7
+        with:
+          path: out/PA03-BakaSU-*.zip
+          if-no-files-found: error
+          retention-days: 14
+          archive: false

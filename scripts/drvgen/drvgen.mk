@@ -65,6 +65,7 @@ DRVGEN_FILE_LIST += $(DTB_FILES)
 else
 DRVGEN_FILE_LIST :=
 endif
+DRVGEN_PYTHON ?= python3
 DRVGEN_TOOL := $(srctree)/tools/dct/DrvGen.py
 
 .PHONY: drvgen
@@ -76,7 +77,7 @@ $(DRVGEN_FILE_LIST): $(DRVGEN_TOOL) $(DWS_FILE) $(DTS_FILES)
 		dws_path=$(DWS_PREFIX)$$base_prj$(DWS_SUFFIX) ;\
 		if [ -f $$dws_path ] ; then \
 			mkdir -p $$prj_path ;\
-			$(python) $(DRVGEN_TOOL) $$dws_path $$prj_path $$prj_path cust_dtsi;\
+			$(DRVGEN_PYTHON) $(DRVGEN_TOOL) $$dws_path $$prj_path $$prj_path cust_dtsi;\
 		fi \
 	done
 ifeq ($(strip $(CONFIG_MTK_DTBO_FEATURE)), y)
@@ -91,7 +92,7 @@ $(DTB_OVERLAY_IMAGE_TAGERT) : PRIVATE_MKIMAGE_CFG:=$(srctree)/scripts/odmdtbo.cf
 $(DTB_OVERLAY_IMAGE_TAGERT) : $(PRIVATE_MULTIPLE_DTB_OVERLAY_OBJ) dtbs $(PRIVATE_MKIMAGE_TOOL) $(PRIVATE_MKIMAGE_CFG) $(PRIVATE_MULTIPLE_DTB_OVERLAY_HDR)
 	@echo Singing the generated overlay dtbo.
 	cat $(PRIVATE_DTB_OVERLAY_OBJ) > $(PRIVATE_MULTIPLE_DTB_OVERLAY_OBJ) || (rm -f $(PRIVATE_MULTIPLE_DTB_OVERLAY_OBJ); false)
-	python $(PRIVATE_MULTIPLE_DTB_OVERLAY_HDR) $(PRIVATE_MULTIPLE_DTB_OVERLAY_OBJ) $(PRIVATE_MULTIPLE_DTB_OVERLAY_IMG)
+	$(DRVGEN_PYTHON) $(PRIVATE_MULTIPLE_DTB_OVERLAY_HDR) $(PRIVATE_MULTIPLE_DTB_OVERLAY_OBJ) $(PRIVATE_MULTIPLE_DTB_OVERLAY_IMG)
 	$(PRIVATE_MKIMAGE_TOOL) $(PRIVATE_MULTIPLE_DTB_OVERLAY_IMG) $(PRIVATE_MKIMAGE_CFG)  > $@
 
 .PHONY: odmdtboimage dtbs
