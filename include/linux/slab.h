@@ -12,6 +12,7 @@
 #define	_LINUX_SLAB_H
 
 #include <linux/gfp.h>
+#include <linux/string.h>
 #include <linux/types.h>
 #include <linux/workqueue.h>
 
@@ -540,6 +541,21 @@ static inline void *kmalloc_array(size_t n, size_t size, gfp_t flags)
 	if (size != 0 && n > SIZE_MAX / size)
 		return NULL;
 	return __kmalloc(n * size, flags);
+}
+
+static inline char *kmemdup_nul(const void *src, size_t len, gfp_t gfp)
+{
+	char *copy;
+
+	if (len == SIZE_MAX)
+		return NULL;
+
+	copy = kmalloc(len + 1, gfp);
+	if (copy) {
+		memcpy(copy, src, len);
+		copy[len] = '\0';
+	}
+	return copy;
 }
 
 /**
