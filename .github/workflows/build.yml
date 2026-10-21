@@ -50,12 +50,10 @@ jobs:
       - name: Build kernel and AnyKernel3 package
         run: bash build.sh
 
-      - name: Upload flashable package and build log
+      - name: Upload flashable package without wrapping it in another archive
         uses: actions/upload-artifact@v7
         with:
-          name: PA03-BakaSU-${{ github.run_number }}
-          path: |
-            out/PA03-BakaSU-*.zip
-            out/build.log
+          path: out/PA03-BakaSU-*.zip
           if-no-files-found: error
           retention-days: 14
+          archive: false
